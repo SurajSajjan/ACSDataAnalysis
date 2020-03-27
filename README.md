@@ -1,4 +1,4 @@
-# ACSDataAnalysis
+# American Community Survey Data Analysis
 
 This project pertains to the Analysis of the American Community Survey Data using R Programming.
 
