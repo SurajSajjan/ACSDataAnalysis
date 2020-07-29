@@ -9,4 +9,4 @@ The selected data set is the population data, which is a sample taken from the â
 
 Exploratory data analysis has been performed and various findings are visualized. For some findings, stastistical analytics methods such as Linear Regression and ANOVA have been used. 
 
-Please refer the file ACSDataAnalysis_Report for the detailed project report.
+Please refer the file ACS_DataAnalysis_Report for the detailed project report.
