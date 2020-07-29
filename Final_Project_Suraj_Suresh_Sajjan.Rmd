@@ -1,0 +1,761 @@
+---
+title: 'Final Project - AMOD 5250H'
+author: "Suraj Suresh Sajjan"
+date: "release date: 12/14/2018"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 3
+        theme: paper
+        highlight: tango
+        self_contained: true
+        df_print: paged
+
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(data.table)
+library(tidyverse)
+
+USApop <- fread("D:/AMOD/AMOD-5250H-A-Data Analytics with R/ACS/csv_pus/new/USApop.csv")
+
+```
+
+# Data Summary:   
+
+The selected data set is the population data, which is a sample taken from the "2016 American Community Survey (ACS) 5-year Public Use Microdata Samples (PUMS)". The samples are actual survey responses recorded by the ACS between the years 2012-2016.  The data set contains over 360 variables and around 16,000,000 records distributed across 4 csv files. Here, we have used the data table library to import only the variables of our choice from each of these 4 csv files and combine them into one single dataset.  The description and variable names are as follows:  
+
+
+     Name       Description  
+     
+     ST         Names of States in the Unites States
+     ADJINC     Adjustment factor for the income
+     PWGTP      Person weight for the population
+     AGEP       Age of the Population
+     CIT        Citizenship Status 
+     COW        Class of the Worker
+     JWMNP      Travel time to work in minutes
+     JWTR       Means of transportation to work
+     SCHL       Education attainment
+     SEX        Gender of the person
+     ESR        Employment status record
+     LANP       Language spoken at home
+     PINCP      Total income of the person
+     WAGP       Salary income of the past 12 months  
+     
+### Explaination of individual variables:  
+
+#### 1. ST (State name):  
+This categorical variable contains all the 52 United States of America arranged categorically with state codes with different values between 1 and 76.  
+
+#### 2. ADJINC (Adjustment factor for Income):  
+This is the adjustment factor used to adjust the income or dollar values to a constant, given the value is different for different years. This is numerical data.  
+
+#### 3. PWGTP (Person Weight per person):  
+Since this dataset is a sample of the entire US population, it is a scaled down version. To get an actual estimate, the weights are used. This is numerical data.  
+
+#### 4. AGEP (Age of the population):  
+This variable contains the age of the population varying from 0 to 100. This is numerical data.    
+
+#### 5. CIT (Citizenship status of the person):  
+This caegorical variable contains the information on various citizenship status of the people.    
+
+    Code  Description
+    1     A person who was born in the U.S.  
+    2     A person who was born in the U.S. Virgin Islands, Puerto Rico, the Northern Marianas or Guam  
+    3     A person born to American parents, abroad   
+    4     A person who received U.S. citizen upon naturalization  
+    5     A person who is citizen of a different country, in the U.S on a temporary basis.  
+
+#### 6. COW (Class of Worker):  
+This categorical variable defines the various classes of worker in the US  
+
+    Code Description
+     0    A peron who is younger than 16 years of age and has never worked.
+     1    A salaried employee of a private profit based company.  
+     2    An employee of a non-profit private organisation.  
+     3    An employee of the local government.   
+     4    An employee of the state government.   
+     5    An employee of the Federal government.  
+     6    A self-employed person who owns the non incoporated business.  
+     7    A self-employed person who owns the incoporated business.  
+     8    A worker of the family owned business without pay.  
+     9    A person who is unemployed and has not worked for the past 5 years.  
+
+
+#### 7. JWTR (Means of transportation):  
+This is a categorical variable that defines the means of transportation to work.  
+
+     00  Not a worker, under age of 16 or unemployed.  
+     01  Car, truck, or van  
+     02  Bus or trolley bus  
+     03  Streetcar or trolley car  
+     04  Subway or elevated  
+     05  Railroad  
+     06  Ferryboat  
+     07  Taxicab  
+     08  Motorcycle  
+     09  Bicycle  
+     10  Walked  
+     11  Worked at home  
+     12  Other method  
+     
+     
+#### 8. JWMNP(Travel time to work in minutes):    
+This numerical variable tells us the time taken by the worker to reach his/her office.  
+
+
+#### 9. SCHL (Educational attainment):  
+This categorical variable defines the highest educational degree achieved by the individual.  
+
+    Code Description
+    00   a child less than 3 years of age  
+    01   Not completed any schooling  
+    02   Preschool, nursery school  
+    03   Kindergarten  
+    04   Grade 1  
+    05   Grade 2  
+    06   Grade 3  
+    07   Grade 4  
+    08   Grade 5  
+    09   Grade 6  
+    10   Grade 7  
+    11   Grade 8  
+    12   Grade 9  
+    13   Grade 10  
+    14   Grade 11  
+    15   12th grade without a diploma  
+    16   A deploma from high school  
+    17   General Educational Development  
+    18   A college degree of less than a year   
+    19   College credit of 1 or more years but without a degree   
+    20   Associate's degree  
+    21   Bachelor's degree  
+    22   Master's degree  
+    23   Professional degree after a bachelor's degree  
+    24   Doctorate degree  
+
+#### 10. SEX:  
+This categorical variable defines the gender of the person, either male or female.  
+
+#### 11. ESR (Employment status record):  
+
+    0   Underaged, less than 16 years old  
+    1   An employed civilian who is working    
+    2   An employed civilian who is not working   
+    3   Unemployed  
+    4   An Armed forces personnel who is working  
+    5   Armed forces non working  
+    6   Not in labor force  
+    
+#### 12. LANP(Language Spoken at home):  
+This categorical variable defines the various languages spoken all around the world with assigned numbers.  
+
+#### 13. PINCP(Total income of the person):  
+This numerical variable defines the total income of the person.  
+
+#### 14. WAGP(Salary income past 12 months):  
+This numerical variable defines the salary income of the person in the past 12 months.  
+
+### Methodology:  
+
+Being an International student from India, I was curious when so much of information of the entire population of the US was given to me. The first thing that popped in my mind was to analyze how the Indians who went to the US are doing. So I decided to plot a graph of some of the language which are native languages of me and a few of my friends here at Trent. Then I observed from the plot that the most widely spoken India language in the US is Hindi. Next, I decided to look at the distribution of these people among the various states of America, see which state has the majority of the population. By this way, I was able to down sample the huge data-set into a smaller data-set and analyze different aspects of the Hindi speaking population in the state of California.  
+
+Most of the NA values in the categorical variables I chose to analyze provided some insight on the population, hence I chose to categorise them as a category of their own.  
+
+In the schooling completion levels variable, the kids who are less than 3 year old would still account for the kids who haven't completed any schooling. Hence I included these kids in that category. 
+
+### Findings:  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Replacing NA with 0 in columns
+USApop$COW <- USApop$COW %>% replace(., is.na(.), 0)
+USApop$JWMNP <- USApop$JWMNP %>% replace(., is.na(.), 0)
+USApop$JWTR <- USApop$JWTR %>% replace(., is.na(.), 0)
+USApop$WKHP <- USApop$WKHP %>% replace(., is.na(.), 0)
+USApop$ESR <- USApop$ESR %>% replace(., is.na(.), 0)
+USApop$FOD1P <- USApop$FOD1P %>% replace(., is.na(.), 0)
+USApop$FOD2P <- USApop$FOD2P %>% replace(., is.na(.), 0)
+USApop$LANP <- USApop$LANP %>% replace(., is.na(.), 0)
+USApop$OCCP <- USApop$OCCP %>% replace(., is.na(.), 0)
+
+#NA means less than 3 years, which is equalent to no schooling completed
+USApop$SCHL <- USApop$SCHL %>% replace(., is.na(.), 1)
+
+
+#Converting to factors
+USApop$JWTR <- as.factor(USApop$JWTR)
+USApop$SCHL <- as.factor(USApop$SCHL)
+USApop$ESR <- as.factor(USApop$ESR)
+USApop$SEX <- as.factor(USApop$SEX)
+USApop$COW <- as.factor(USApop$COW)
+USApop$FOD1P <- as.factor(USApop$FOD1P)
+USApop$FOD2P <- as.factor(USApop$FOD2P)
+USApop$ST <- as.factor(USApop$ST)
+
+```
+
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Plot to find the most widely spoken language among the selected few against age.  
+
+Age <- seq(1,100)
+Kannada<- seq(1,100)
+Telugu <- seq(1,100)
+Punjabi <- seq(1,100)
+Marathi <- seq(1,100)
+Gujarati <- seq(1,100)
+Hindi <- seq(1,100)
+Other <- seq(1,100)
+
+loop <- seq(1:100)
+
+for (i in loop) {
+   Kannada[i] <-  with(USApop,sum(PWGTP[AGEP==i & LANP == 1737]))
+   Hindi[i] <-  with(USApop,sum(PWGTP[AGEP==i & LANP == 1350]))
+   Telugu[i] <-  with(USApop,sum(PWGTP[AGEP==i & LANP == 1730]))
+   Punjabi[i] <- with(USApop,sum(PWGTP[AGEP==i & LANP == 1420]))
+   Marathi[i] <- with(USApop,sum(PWGTP[AGEP==i & LANP == 1440]))
+   Gujarati[i] <- with(USApop,sum(PWGTP[AGEP==i & LANP == 1450]))
+   Other[i] <-  with(USApop,sum(PWGTP[AGEP==i & (LANP !=1737 & LANP != 1350 & LANP != 1730 & LANP != 1420 & LANP != 1440 & LANP != 1450)]))
+   Age[i]   <-  i
+}
+
+#Total pop of US
+total_pop <- sum(Kannada)+sum(Hindi)+sum(Other)+sum(Telugu)+sum(Punjabi)+sum(Marathi)+sum(Gujarati)
+
+cat("The total population in the United States is =", total_pop)
+
+#Build language DF
+languages_pop <- data.frame(Age, Kannada, Hindi, Other, Telugu, Punjabi, Marathi, Gujarati)
+
+#Language wise population
+ind_lang_pop <- select(languages_pop, Kannada, Hindi, Telugu, Punjabi, Marathi, Gujarati) %>% colSums
+
+languaga_data <- select(languages_pop, Age, Kannada, Hindi, Other, Telugu, Punjabi, Marathi, Gujarati) %>% 
+  gather(Language,Value,-Age,-Other)
+
+(pop_lang_plot <- ggplot(data = languaga_data, 
+            aes(x=Age, y=Value)) + 
+  geom_line(aes(color=Language, group=Language)) + 
+  geom_point(aes(color=Language, shape=Language, group=Language), size=1)+
+  ylab("Population") +
+  xlab("Age"))+
+  ggtitle("Distribution of US population based on some languages Spoken")
+
+```
+
+From the above graph, we observe how the population of the selected few Indian languages differ across the various age groups. We observe that the most number of Indian/Indian origin people in the US are of the age group 25 to 35.  
+We observe that among the selected languages, Hindi is the most widely spoken language, followed by Telugu, Gujarati, Punjabi, Marathi and Kannada.  
+Since Hindi is the most widely spoken languages in the above plot and is a language most other indians know to speak, despite it not being their mother tongue, I have chosen to continue my analysis on people who speak Hindi.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Plot to check the spead of Hindi people across the various states of the US.
+
+States <- c("California", "Illinois", "New Jersey","New York", "Texas")
+
+hindi_st_pop <- USApop %>% filter(LANP == 1350) %>% group_by(ST) %>% summarise(count=sum(PWGTP)) %>% top_n(n = 5)
+ggplot(data = hindi_st_pop, aes(x = ST, y = count, fill = States)) + geom_bar(stat="identity") + xlab("State") + ggtitle("Distribution of Hindi population State Wise")  + scale_x_discrete(labels= States)
+
+cat("The number of people who speak Hindi in California is:", hindi_st_pop$count[1])
+
+```
+
+The above plot shows the distribution of the people who speak Hindi at their homes among the different states of America. Since we are interested only in the state with the highest Hindi population, We have ranked the states by population and plotted the top 5 states with highest population. We observe that the maximum number of people are present in California. We also observe that the 2nd highest population is present in New Jersey, followed by Texas, New York and Illinois among the top 5 states.  
+
+Since California state contains the highest number of Hindi speaking people, we shall continue our analysis on these people in California state.  
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Plot to find out the distribution of Hindi people in California based on gender.
+
+#Hindi cal pop data set
+hindi_cal_pop <- USApop %>% filter(ST == 06 & LANP == 1350)
+
+#Male vs Female count of Hindi population in California
+hindi_cal_pop$SEX <- ifelse(hindi_cal_pop$SEX == "1", "Male", "Female")
+
+sex_distro <- hindi_cal_pop %>% group_by(SEX) %>% summarise(count=sum(PWGTP))
+
+ggplot(data = sex_distro, aes(x = SEX, y = count, fill = SEX)) + geom_bar(stat="identity") + ggtitle("Distribution of Hindi population by Sex in California")
+
+```
+
+The above plot depicts the distribution of males and females in the Califrnia state who speak Hindi in their homes, as the case is in most places, the number of males is slightly higher than the number of females.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+#Citizenship plot
+
+citizenship_labels <- c("Born in the US",
+"Born in Puerto Rico,Guam/VI/NM",
+"Born abroad of American parents",
+"US citizen by naturalization",
+"Not a citizen")
+
+Citizenship_destro <- hindi_cal_pop %>% group_by(CIT) %>% summarise(count=sum(PWGTP))
+
+ggplot(data = Citizenship_destro, aes(x = CIT, y = count, fill = citizenship_labels)) + geom_bar(stat="identity") + xlab("Citizenship Status") + ggtitle("Distribution of Hindi population by Citizenship status") + scale_x_discrete(labels= citizenship_labels) + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + scale_fill_discrete(name = "Citizenship Status")
+
+```
+
+The above plot depicts the citizenship status of the Hindi people in the California state. We observe that the majority of the population are not citizens. A lot of people who come to the US or other developed countries like Canada, are students, forming the majority of Hindi people, this number also compromises of high skilled workers who are in the US as workers for companies on visas such as H1B, and other non immigrant visas. The second largest category of citizenship is of the people who were natuarized as citizens upon being awarded the green card by the government of US. The third category is the people born in the US whose elders imigrated from India. The next category is the people born to US citizens abroad, this could be due to the fact that the Indian origin US citizens might have travelled to India/other countries during pregnancy and the child was born abroad. The last category is people born in Puerto Rico, Guam, the Virgin Islands of the US or the Northern Marianas which contains negligible numbers.    
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Employment Status
+
+Employment_labels <- c("Underaged",
+"Civilian employed, at work",
+"Civilian employed, non working",
+"Unemployed",
+"Armed forces, at work",
+"Armed forces, non working",
+"Not in labor force")
+
+Emloyment_distro <- hindi_cal_pop %>% group_by(ESR,SEX) %>% summarise(count=sum(PWGTP))
+
+ggplot(data = Emloyment_distro, aes(x = ESR, y = count, fill = SEX)) + geom_bar(stat="identity", position=position_dodge()) + xlab("Employment Status") + ggtitle("Employment status splitup among gender") + scale_x_discrete(labels= Employment_labels) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+```
+
+The above plot shows the employment status of the Hindi people in California. As Indian origin people form one of the major contributors of highly skilled labour force in the US, it is quite obvious that the majority of them are civilians employed at work. Among the genders, it is the men who are higher in number in this category. The population in the underaged category seems almost equal. Surprisingly, it is observed that the number of females in the armed forces who are not working seems to be higher than the men.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.width=10, fig.height=5}
+
+#The classes of workers in California
+
+COW_distro <- hindi_cal_pop %>% group_by(COW) %>% summarise(count=sum(PWGTP))
+
+COW_labels <- c("Not in universe (less than 16 years old/NILF who last worked more than 5 years ago or never worked)",
+"Employee of a private for-profit company or business, or of an individual, for wages, salary, or commissions",
+"Employee of a private not-for-profit,tax-exempt, or charitable organization",
+"Local government employee (city, county, etc.)",
+"State government employee",
+"Federal government employee",
+"Self-employed in own not incorporated business, professional practice, or farm",
+"Self-employed in own incorporated business, professional practice or farm",
+"Working without pay in family business or farm",
+"Unemployed and last worked 5 years ago or earlier or never worked")
+
+ggplot(data = COW_distro, aes(x = COW, y = count, fill = COW_labels)) + geom_bar(stat="identity") + xlab("Class of Worker") + ggtitle("Distribution of population based on Class of Worker") + scale_fill_discrete(name = "Class of Worker")
+
+```
+
+From the above plot, we observe that, as expected, most of the Hindi speaking population in the state of California fall under the class of workers who are employees of a private for-profit company or business, or of an individual, who work to get paid. The second biggest class is of the younger set of people who are below 16 years of age and un-employed. They don't really qualify as working class, but since they are still a part of the whole population, we have retained them. This is followed by people who work for non-profit organisations, which is an interesting observation, followed by people who are self-employed or entrepreneur.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Time taken to travel to work
+
+(Time.means <- aggregate(JWMNP ~  COW, hindi_cal_pop, mean))
+
+ggplot(data = hindi_cal_pop, aes(x = COW, y = JWMNP, fill = COW)) +  geom_boxplot() + xlab("Class of Worker") + ylab("Travel time in minutes")+ ggtitle("Distribution of Travel time to Work") + stat_summary(fun.y=mean, geom="point", shape=4, size=3,show_guide = FALSE) + scale_fill_discrete(name = "Class of Worker") 
+```
+
+Now we study the amount of time taken by the people to travel to work:  
+In the above plot, the mean time taken is marked with an "X".  
+It seems that the mean time taken by a federal employee is the highest among others, followed by employees of a private for-profit organisation. The mean of time to travel for people who are under 16 years of age who are unemployed, as well as the people who are actually unemployed is obviously zero, as they do not travel at all.  Local government employess seem to be the ones who's mean travel time comes next, after private for-profit organisation.    
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Plot of the means os transport utilised by people to get to work
+
+Vehicle_distro <- hindi_cal_pop %>% group_by(JWTR,SEX) %>% summarise(count=sum(PWGTP))
+
+Transport_labels <- c("U-16/Unemployed",
+"Car/truck/van",
+"Bus/trolley bus",
+"Streetcar/rolley car",
+"Subway/elevated",
+"Railroad",
+"Ferryboat",
+"Taxicab",
+"Motorcycle",
+"Bicycle",
+"Walked",
+"Worked at home",
+"Other method")
+ggplot(data = Vehicle_distro, aes(x = JWTR, y = count, fill = SEX)) + geom_bar(stat="identity", position=position_dodge()) + xlab("Means of Transportation") + ggtitle("Means of Transportation to Work splitup among gender") + scale_x_discrete(labels= Transport_labels) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+```
+
+From the above plot, we observe that the majority of men are employed and travel by a car, truck or a van. The majority of working women also seem to travel by the same way. It is also observed that the number of people who are under 16 years of age or unemployed, is more among the females compared to males.  The third biggest category is of the people who work from home. Companies these days are being relatively more flexible with respect to allowing their employees to work from home, which might help some of the employees feel more comfortable and hence increase productivity.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Education level plot
+
+education_level_distro <- hindi_cal_pop %>% group_by(SCHL,SEX) %>% summarise(count=sum(PWGTP)) %>% top_n(10)
+ggplot(data = education_level_distro, aes(x = SCHL, y = count, fill = SCHL)) + geom_bar(stat="identity") + xlab("Level of Education") + ggtitle("Level of Education splitup among gender") + facet_wrap(vars(SEX), nrow = 2) + scale_fill_discrete(name = "Education Level")
+
+```
+
+From the above plot of educational achievement among the hindi speaking people of California, we observe that the majority of the men tend to complete a Master's degree upon completion of their Bachelor's. The group with second highest number of men is the group of people who complete a Bachelor's degree.  
+When it comes to women, the majority of women seem to stop studying after their Bachelor's degree. A general practice among Indians is that the women, as soon as they complete their Bachelor's, are married off to a well established male. Since it is the US in consideration here, the people who travel all the way are usually ambitious people. This shows, by the group with 2nd highest number of females according to educational achievement, where the women have gone ahead and achieved a Master's degree.  
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Plot of Income against education level.
+
+Education_levels <- c("High school diploma",
+"GED",
+"Some college",
+"College credit,no degree",
+"Associate's degree",
+"Bachelor's degree",
+"Master's degree",
+"Professional degree",
+"Doctorate degree")
+
+income_distro <- hindi_cal_pop %>% filter(PINCP>1000) %>%  mutate(Act_PINCP = PINCP*(ADJINC/1000000)) %>%  group_by(SCHL) #%>% na.omit()
+new_income_distro <- income_distro %>% filter(as.integer(SCHL)>15)
+
+ggplot(data = new_income_distro, aes(x = SCHL, y = Act_PINCP)) + geom_boxplot(fill = "orange") + xlab("Level of Education") + ylab("Total Income") + ggtitle("Income based on level of Education") + ylim(0,100000) + scale_x_discrete(labels= Education_levels) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+```
+
+From the above plot we observe that, among the hindi speaking population of California, the median total income is the heighest for the people with a Master's degree followed by the Doctorate degree. Which is an interesting finding, as when we consider the entire population of US, we observe that the highest median income is bagged by people with a Doctorate degree and then by those with a Master's degree. The third median income is bagged by people with a professional degree post Bachelor's, followed by people who have completed their Bachelor's.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+#Linear Regression Analysis
+
+calpop_income <- hindi_cal_pop %>% select(PINCP, WAGP) %>% na.omit()
+
+plot(calpop_income$WAGP, calpop_income$PINCP, xlab = "Income from the past year", ylab = "Total Income", main = "Total Income vs Income from past year")
+
+```
+
+Here, we plot the total income of a person against the salary income in  the past year. We observe that there is a linear trend in the plot. Hence we go ahead and apply the linear regression on these variables. We consider the total income as the dependent variable on the x axis and the salary income from the past year as the independent variable.  
+
+
+The assumptions we make in a linear model are:  
+- The value of error is expected to be zero.
+- The variance of the errors is constant.  
+- The errors are expected to be independent of each other.  
+- The errors are expected to be normally distributed.  
+
+
+Let us define the null and alternate hypothesis.  
+**Null Hypothesis:** There is no relationship between the total income and the salary income in the past year. The slope of a regression line is zero.  
+**Alternate Hypothesis:** There exists a relationship between the total income and the salary income from the past year. The slope is not zero.  
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+cat("The corellation value between total income and the salary income in the past year is found to be:", cor(calpop_income$PINCP,calpop_income$WAGP))
+
+Income.model <- lm(data = calpop_income, PINCP ~ WAGP)
+
+summary(Income.model)
+
+ggplot(calpop_income, aes(x=WAGP, y=PINCP))+
+    geom_point() +    
+    geom_smooth(method=lm) + xlab("Income from the past year") + ylab("Total Income") + ggtitle("Total Income vs Income from past year")
+
+plot(Income.model)
+
+```
+
+From the above model, we observe a p-value of $2.2 X 10^-16$. This is significantly less when compared to the alpha value of 0.05, Hence we reject the null hypothesis and say there exists a relation between the total income of a person to his salary income in the past year.  
+
+We see that the intercept is $6.25 X 10^3$ and the slope is 1.022. Hence the equation of regression can be formulated as: PINCP = 1.022(WAGP) + $6.25 X 10^3$.  
+
+According to the model, if the salary income for the year is zero, the total income would be $6.25 X 10^3$.  We observe that the coefficient t-value is 200.47. The further away from 0, the better.  
+
+We observe an R-squared value of 0.8534. This value is used to determine how well the model fits the data. Hence the model can be accurate upto 85.34%.  
+
+The F-statistic is $4.019 X 10^4$ The further away the value from 0, the better.  
+
+
+**Evaluating the graphs:**  
+From the residuals vs fitted plot, we observe that the points are scattered without a pattern. We also observe that the residual movement line is nearly parallel to x- axis.  
+
+From the normal QQ-plot, we observe that the points almost follow the normality line. There are a few outliers at points 1976, 4714, 6398.  
+
+The scale-location plot has a line almost parallel to the x-axis. This indicates a nearly uniform variance across the range.   
+
+The residual vs Leverage plot indicates the area where points can have a high influence on the model. This area is indicated by red dotted lines.  
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+#Anova of Income against Education level
+
+anova(lm(hindi_cal_pop$PINCP ~ hindi_cal_pop$SCHL))
+
+```
+
+Let us formulate Null and Alternate hypothesis:
+**Null Hypothesis: The mean income for all education levels is same.  
+**Alternate Hypothesis: The income mean for at least one of the education level is not equal to that of the rest.  
+
+From the p value observed, we see that it is less than 0.05, hence we reject null hypothesis and state that the income averages are not constant across different educational levels.  
+
+
+### Discussion and Conclusion:  
+
+From the various graphical and statistical analysis performed above, we derived some insightful results with regard to how the Hindi speaking people are doing in the United States of America. Although there are some differences observed such as the observation we made with regards to income of a doctorate candidate who earned lesser than a Master's candidate in our analysis on Hindi people, whereas it is the other way around for the entire population, the results are pretty relatable to the expected results when analysis the sample on a whole. The models I fit are quite believable.  
+
+I have 80% confidence that the findings based on the analysis I have performed are appropriate except for the part where we found that there are more number of women in the armed forces but not working, when compared to men.  Most of the findings seem realsistic enough to be resented to a policy maker.   
+
+
+
+
+Code for the above analysis:  
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE, eval = FALSE}
+
+#Code to read the 4 csv files and combine them into one after selecting the desired variables.
+
+usapop <- fread("D:/AMOD/AMOD-5250H-A-Data Analytics with R/ACS/csv_pus/ss16pusa.csv", select = c("SERIALNO","ST","ADJINC","PWGTP","AGEP","CIT","COW","JWMNP","JWTR","SCHL","SEX","WKHP","ESR","FOD1P","FOD2P","LANP","PINCP","OCCP","WAGP"))
+usbpop <- fread("D:/AMOD/AMOD-5250H-A-Data Analytics with R/ACS/csv_pus/ss16pusb.csv", select = c("SERIALNO","ST","ADJINC","PWGTP","AGEP","CIT","COW","JWMNP","JWTR","SCHL","SEX","WKHP","ESR","FOD1P","FOD2P","LANP","PINCP","OCCP","WAGP"))
+uscpop <- fread("D:/AMOD/AMOD-5250H-A-Data Analytics with R/ACS/csv_pus/ss16pusc.csv", select = c("SERIALNO","ST","ADJINC","PWGTP","AGEP","CIT","COW","JWMNP","JWTR","SCHL","SEX","WKHP","ESR","FOD1P","FOD2P","LANP","PINCP","OCCP","WAGP"))
+usdpop <- fread("D:/AMOD/AMOD-5250H-A-Data Analytics with R/ACS/csv_pus/ss16pusd.csv", select = c("SERIALNO","ST","ADJINC","PWGTP","AGEP","CIT","COW","JWMNP","JWTR","SCHL","SEX","WKHP","ESR","FOD1P","FOD2P","LANP","PINCP","OCCP","WAGP"))
+
+View(head(USApop))
+
+USApop <- rbind(usapop, usbpop, uscpop, usdpop)
+
+write.csv(USApop, file = file.choose(new = T))
+
+
+library(data.table)
+library(tidyverse)
+
+USApop <- fread("D:/AMOD/AMOD-5250H-A-Data Analytics with R/ACS/csv_pus/new/USApop.csv")
+
+#-----------------------------------------------------------------------------------
+
+#Replacing NA with 0 in columns
+USApop$COW <- USApop$COW %>% replace(., is.na(.), 0)
+USApop$JWMNP <- USApop$JWMNP %>% replace(., is.na(.), 0)
+USApop$JWTR <- USApop$JWTR %>% replace(., is.na(.), 0)
+USApop$WKHP <- USApop$WKHP %>% replace(., is.na(.), 0)
+USApop$ESR <- USApop$ESR %>% replace(., is.na(.), 0)
+USApop$FOD1P <- USApop$FOD1P %>% replace(., is.na(.), 0)
+USApop$FOD2P <- USApop$FOD2P %>% replace(., is.na(.), 0)
+USApop$LANP <- USApop$LANP %>% replace(., is.na(.), 0)
+USApop$OCCP <- USApop$OCCP %>% replace(., is.na(.), 0)
+
+#NA means less than 3 years, which is equalent to no schooling completed
+USApop$SCHL <- USApop$SCHL %>% replace(., is.na(.), 1)
+
+
+#Converting to factors
+USApop$JWTR <- as.factor(USApop$JWTR)
+USApop$SCHL <- as.factor(USApop$SCHL)
+USApop$ESR <- as.factor(USApop$ESR)
+USApop$SEX <- as.factor(USApop$SEX)
+USApop$COW <- as.factor(USApop$COW)
+USApop$FOD1P <- as.factor(USApop$FOD1P)
+USApop$FOD2P <- as.factor(USApop$FOD2P)
+USApop$ST <- as.factor(USApop$ST)
+
+#---------------------------------------------------------------------------------
+
+#Plot to find the most widely spoken language among the selected few.  
+
+Age <- seq(1,100)
+Kannada<- seq(1,100)
+Telugu <- seq(1,100)
+Punjabi <- seq(1,100)
+Marathi <- seq(1,100)
+Gujarati <- seq(1,100)
+Hindi <- seq(1,100)
+Other <- seq(1,100)
+
+loop <- seq(1:100)
+
+for (i in loop) {
+   Kannada[i] <-  with(USApop,sum(PWGTP[AGEP==i & LANP == 1737]))
+   Hindi[i] <-  with(USApop,sum(PWGTP[AGEP==i & LANP == 1350]))
+   Telugu[i] <-  with(USApop,sum(PWGTP[AGEP==i & LANP == 1730]))
+   Punjabi[i] <- with(USApop,sum(PWGTP[AGEP==i & LANP == 1420]))
+   Marathi[i] <- with(USApop,sum(PWGTP[AGEP==i & LANP == 1440]))
+   Gujarati[i] <- with(USApop,sum(PWGTP[AGEP==i & LANP == 1450]))
+   Other[i] <-  with(USApop,sum(PWGTP[AGEP==i & (LANP !=1737 & LANP != 1350 & LANP != 1730 & LANP != 1420 & LANP != 1440 & LANP != 1450)]))
+   Age[i]   <-  i
+}
+
+#Total pop of US
+total_pop <- sum(Kannada)+sum(Hindi)+sum(Other)+sum(Telugu)+sum(Punjabi)+sum(Marathi)+sum(Gujarati)
+
+cat("The total population in the United States is =", total_pop)
+
+#Build language DF
+languages_pop <- data.frame(Age, Kannada, Hindi, Other, Telugu, Punjabi, Marathi, Gujarati)
+
+#Language wise population
+ind_lang_pop <- select(languages_pop, Kannada, Hindi, Telugu, Punjabi, Marathi, Gujarati) %>% colSums
+
+languaga_data <- select(languages_pop, Age, Kannada, Hindi, Other, Telugu, Punjabi, Marathi, Gujarati) %>% 
+  gather(Language,Value,-Age,-Other)
+
+(pop_lang_plot <- ggplot(data = languaga_data, 
+            aes(x=Age, y=Value)) + 
+  geom_line(aes(color=Language, group=Language)) + 
+  geom_point(aes(color=Language, shape=Language, group=Language), size=1)+
+  ylab("Population") +
+  xlab("Age"))+
+  ggtitle("Distribution of US population based on some languages Spoken")
+
+#---------------------------------------------------------------------------------
+
+#Plot to check the spead of Hindi people across the various states of the US.
+
+States <- c("California", "Illinois", "New Jersey","New York", "Texas")
+
+hindi_st_pop <- USApop %>% filter(LANP == 1350) %>% group_by(ST) %>% summarise(count=sum(PWGTP)) %>% top_n(n = 5)
+ggplot(data = hindi_st_pop, aes(x = ST, y = count, fill = States)) + geom_bar(stat="identity") + xlab("State") + ggtitle("Distribution of Hindi population State Wise")  + scale_x_discrete(labels= States)
+
+cat("The number of people who speak Hindi in California is:", hindi_st_pop$count[1])
+
+#---------------------------------------------------------------------------------
+
+#Plot to find out the distribution of Hindi people in California based on gender.
+
+#Hindi cal pop data set
+hindi_cal_pop <- USApop %>% filter(ST == 06 & LANP == 1350)
+
+#Male vs Female count of Hindi population in California
+hindi_cal_pop$SEX <- ifelse(hindi_cal_pop$SEX == "1", "Male", "Female")
+
+sex_distro <- hindi_cal_pop %>% group_by(SEX) %>% summarise(count=sum(PWGTP))
+
+ggplot(data = sex_distro, aes(x = SEX, y = count, fill = SEX)) + geom_bar(stat="identity") + ggtitle("Distribution of Hindi population by Sex in California")
+
+#---------------------------------------------------------------------------------
+
+#Citizenship plot
+
+citizenship_labels <- c("Born in the US",
+"Born in Puerto Rico,Guam/VI/NM",
+"Born abroad of American parents",
+"US citizen by naturalization",
+"Not a citizen")
+
+Citizenship_destro <- hindi_cal_pop %>% group_by(CIT) %>% summarise(count=sum(PWGTP))
+
+ggplot(data = Citizenship_destro, aes(x = CIT, y = count, fill = citizenship_labels)) + geom_bar(stat="identity") + xlab("Citizenship Status") + ggtitle("Distribution of Hindi population by Citizenship status") + scale_x_discrete(labels= citizenship_labels) + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + scale_fill_discrete(name = "Citizenship Status")
+
+#---------------------------------------------------------------------------------
+
+#Employment Status
+
+Employment_labels <- c("Underaged",
+"Civilian employed, at work",
+"Civilian employed, non working",
+"Unemployed",
+"Armed forces, at work",
+"Armed forces, non working",
+"Not in labor force")
+
+Emloyment_distro <- hindi_cal_pop %>% group_by(ESR,SEX) %>% summarise(count=sum(PWGTP))
+
+ggplot(data = Emloyment_distro, aes(x = ESR, y = count, fill = SEX)) + geom_bar(stat="identity", position=position_dodge()) + xlab("Employment Status") + ggtitle("Employment status splitup among gender") + scale_x_discrete(labels= Employment_labels) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+#---------------------------------------------------------------------------------
+
+#The classes of workers in California
+
+COW_distro <- hindi_cal_pop %>% group_by(COW) %>% summarise(count=sum(PWGTP))
+
+COW_labels <- c("Not in universe (less than 16 years old/NILF who last worked more than 5 years ago or never worked)",
+"Employee of a private for-profit company or business, or of an individual, for wages, salary, or commissions",
+"Employee of a private not-for-profit,tax-exempt, or charitable organization",
+"Local government employee (city, county, etc.)",
+"State government employee",
+"Federal government employee",
+"Self-employed in own not incorporated business, professional practice, or farm",
+"Self-employed in own incorporated business, professional practice or farm",
+"Working without pay in family business or farm",
+"Unemployed and last worked 5 years ago or earlier or never worked")
+
+ggplot(data = COW_distro, aes(x = COW, y = count, fill = COW_labels)) + geom_bar(stat="identity") + xlab("Class of Worker") + ggtitle("Distribution of population based on Class of Worker") + scale_fill_discrete(name = "Class of Worker")
+
+#---------------------------------------------------------------------------------
+
+#Plot of the means os transport utilised by people to get to work
+
+Vehicle_distro <- hindi_cal_pop %>% group_by(JWTR,SEX) %>% summarise(count=sum(PWGTP))
+
+Transport_labels <- c("U-16/Unemployed",
+"Car/truck/van",
+"Bus/trolley bus",
+"Streetcar/rolley car",
+"Subway/elevated",
+"Railroad",
+"Ferryboat",
+"Taxicab",
+"Motorcycle",
+"Bicycle",
+"Walked",
+"Worked at home",
+"Other method")
+ggplot(data = Vehicle_distro, aes(x = JWTR, y = count, fill = SEX)) + geom_bar(stat="identity", position=position_dodge()) + xlab("Means of Transportation") + ggtitle("Means of Transportation to Work splitup among gender") + scale_x_discrete(labels= Transport_labels) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+#---------------------------------------------------------------------------------
+
+#Education level plot
+
+education_level_distro <- hindi_cal_pop %>% group_by(SCHL,SEX) %>% summarise(count=sum(PWGTP)) %>% top_n(10)
+ggplot(data = education_level_distro, aes(x = SCHL, y = count, fill = SCHL)) + geom_bar(stat="identity") + xlab("Level of Education") + ggtitle("Level of Education splitup among gender") + facet_wrap(vars(SEX), nrow = 2) + scale_fill_discrete(name = "Education Level")
+
+#---------------------------------------------------------------------------------
+
+#Plot of Income against education level.
+
+Education_levels <- c("High school diploma",
+"GED",
+"Some college",
+"College credit,no degree",
+"Associate's degree",
+"Bachelor's degree",
+"Master's degree",
+"Professional degree",
+"Doctorate degree")
+
+income_distro <- hindi_cal_pop %>% filter(PINCP>1000) %>%  mutate(Act_PINCP = PINCP*(ADJINC/1000000)) %>%  group_by(SCHL) #%>% na.omit()
+new_income_distro <- income_distro %>% filter(as.integer(SCHL)>15)
+
+ggplot(data = new_income_distro, aes(x = SCHL, y = Act_PINCP)) + geom_boxplot(fill = "orange") + xlab("Level of Education") + ylab("Total Income") + ggtitle("Income based on level of Education") + ylim(0,100000) + scale_x_discrete(labels= Education_levels) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+#---------------------------------------------------------------------------------
+
+#Linear Regression Analysis
+
+calpop_income <- hindi_cal_pop %>% select(PINCP, WAGP) %>% na.omit()
+
+plot(calpop_income$WAGP, calpop_income$PINCP, xlab = "Income from the past year", ylab = "Total Income", main = "Total Income vs Income from past year")
+
+cat("The corellation value between total income and the salary income in the past year is found to be:", cor(calpop_income$PINCP,calpop_income$WAGP))
+
+Income.model <- lm(data = calpop_income, PINCP ~ WAGP)
+
+summary(Income.model)
+
+ggplot(calpop_income, aes(x=WAGP, y=PINCP))+
+    geom_point() +    
+    geom_smooth(method=lm) + xlab("Income from the past year") + ylab("Total Income") + ggtitle("Total Income vs Income from past year")
+
+plot(Income.model)
+
+#---------------------------------------------------------------------------------
+
+#Anova of Income against Education level
+
+anova(lm(hindi_cal_pop$PINCP ~ hindi_cal_pop$SCHL))
+
+```
+
